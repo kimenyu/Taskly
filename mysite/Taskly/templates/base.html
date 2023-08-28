@@ -1,0 +1,78 @@
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Your Tasks{% endblock %}</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Your custom CSS -->
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-xl navbar-dark bg-dark">
+        <a href="{% url 'Taskly:homepage' %}" class="navbar-brand"><i class="fa fa-newspaper-o"></i><b>Taskly</b></a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbarCollapse" class="collapse navbar-collapse justify-content-between">
+            <form class="navbar-form form-inline" method="GET" action="{% url 'Taskly:search' %}">
+                <div class="input-group search-box">
+                    <input type="text" id="search" name="q" class="form-control form-control-lg py-2 px-4 mr-9" placeholder="Search here..."> <button type="submit" class="btn btn-primary">Search</button>
+                    <span class="input-group-addon"><i class="material-icons">&#xE8B6;</i></span>
+                </div>  
+            </form>
+            <div class="navbar-nav">
+                {% if user.is_authenticated %}
+                <div class="d-flex align-items-center">
+                    <a href="{}" class="nav-item nav-link mx-2"><i class="fa fa-pencil"></i><span>Create Task</span></a>
+                </div>
+        
+                <div class="d-flex align-items-center">
+                    <div class="nav-item dropdown">
+                        <a href="#" data-toggle="dropdown" class="nav-item nav-link dropdown-toggle user-action">
+                            <i class="fa fa-user-circle-o"></i> {{ user.username|upper }} <b class="caret"></b>
+                        </a>
+                        <div class="dropdown-menu">
+                            <a href="{% url 'Taskly:profile' username=user.username %}" class="dropdown-item"><i class="fa fa-user-o"></i> Profile</a>
+                            <a href="#" class="dropdown-item"><i class="fa fa-calendar-o"></i> Calendar</a>
+                            <a href="#" class="dropdown-item"><i class="fa fa-sliders"></i> Settings</a>
+                            <div class="divider dropdown-divider"></div>
+                            <a href="{% url 'Taskly:logout' %}" class="dropdown-item"><i class="fa fa-sign-out"></i> Logout</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'Taskly:register' %}" class="btn btn-primary mx-2">Create Account</a>
+                    <a href="{% url 'Taskly:login' %}" class="btn btn-secondary">Login</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mt-4">
+        {% block content %}
+        {% endblock %}
+    </div>
+    
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize Bootstrap dropdown
+            $('.dropdown-toggle').click(function() {
+                $(this).next('.dropdown-menu').slideToggle();
+            });
+        });
+</script>
+</body>
+</html>
+    
+    
+    
