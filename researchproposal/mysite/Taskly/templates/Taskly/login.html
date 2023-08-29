@@ -2,7 +2,6 @@
 {% load crispy_forms_tags %}
 {% block content %}
 {% include 'Taskly/messaging.html' %}
-
     <div class="content-section">
         <form method="POST">
             {% csrf_token %}
@@ -19,9 +18,10 @@
             <small class="text-muted">
                 Need An Account? <a class="ml-2" href="{% url 'Taskly:register' %}">Sign Up Now</a>
             </small><br>
-            <small class="text-muted">
-                <a href="{% url 'Taskly:password_reset' %}">Forgot password?</a>
-            </small>
+
         </div>
     </div>
 {% endblock content %}
+
+
+

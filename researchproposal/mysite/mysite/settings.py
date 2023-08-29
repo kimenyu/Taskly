@@ -120,19 +120,25 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
-LOGIN_URL = 'login'  # This should match the name of the login view in your app's URL patterns
-
-
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+# LOGIN_REDIRECT_URL = "/"
+AUTHENTICATION_BACKENDS = ['Taskly.backends.EmailBackend'] #changed backends.py so that users can verify using emails. Taskly = app.name, EmailBackend is a methis in backends.py
+
+AUTH_USER_MODEL = 'Taskly.CustomUser'
+
+#STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
-AUTHENTICATION_BACKENDS = ['Taskly.backends.EmailBackend']
-
+# LOGIN_REDIRECT_URL = '/'
+#apppswd=uxgjntjqtudflxxr
+# Emailing settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_FROM = 'kimenyujoseph73@gmail.com'

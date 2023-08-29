@@ -1,8 +1,7 @@
-from django.forms.models import BaseModelForm
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from .models import User, Task
 from django.contrib.auth import get_user_model, login, authenticate, logout
-from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm
+from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm, TaskForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
@@ -14,17 +13,29 @@ from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.db.models.query_utils import Q
-from . models import User, Task, Tag, TaskTag, Priority, TaskPriority
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.views.generic import ListView
+from django.views.generic.edit import CreateView
 from django.urls import reverse_lazy
-from django.db.models import Q
-from .models import User
-from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect
+from .models import Task  # Import your Task model
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.shortcuts import render, redirect
+from .models import Task  # Import your Task model
+from .forms import TaskForm  # Import your TaskForm if you have one
 
+class taskCreateView(LoginRequiredMixin, CreateView):
+    model = Task
+    form_class = TaskForm  # Use your form class here
+    template_name = 'Taskly/task_form.html'  # Specify the template
+    success_url = reverse_lazy('Taskly:homepage')  # Replace 'homepage' with the URL name of your task list view
 
-def homepage(request):
-    return render(request, 'Taskly/home.html')
-    
+    def form_valid(self, form):
+        # Automatically set the user before saving the form
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+class taskListView(ListView):
+    model = Task
 
 
 def search_view(request):
@@ -79,7 +90,7 @@ def register(request):
             user.is_active=False
             user.save()
             activateEmail(request, user, form.cleaned_data.get('email'))
-            return redirect('Taskly:login')
+            return redirect('Taskly:homepage')
         else:
             for error in list(form.errors.values()):
                 messages.error(request, error)
@@ -123,43 +134,29 @@ def login_view(request):
         context={"form": form}
         )
 
-
-from django.contrib.auth.models import User
-
-
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from .forms import UserUpdateForm
-from django.contrib.auth import get_user_model
-
-@login_required
 def profile(request, username):
-    user = get_object_or_404(get_user_model(), username=username)
-
     if request.method == "POST":
+        user = request.user
         form = UserUpdateForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             user_form = form.save()
             messages.success(request, f'{user_form.username}, Your profile has been updated!')
-            return redirect("Taskly:profile", username=user_form.username)
+            return redirect("Taskly:profile", user_form.username)
 
-        for field, errors in form.errors.as_data().items():
-            for error in errors:
-                messages.error(request, f"{field}: {error}")
+        for error in list(form.errors.values()):
+            messages.error(request, error)
 
-    else:
+    user = get_user_model().objects.filter(username=username).first()
+    if user:
         form = UserUpdateForm(instance=user)
-        form.fields['description'].widget.attrs = {'rows': 1}
-
-    return render(
-        request=request,
-        template_name="Taskly/profile.html",
-        context={"form": form, "user": user}
-    )
-
-
-
+        #form.fields['description'].widget.attrs = {'rows': 1}
+        return render(
+            request=request,
+            template_name="Taskly/profile.html",
+            context={"form": form}
+            )
+    
+    return redirect("Taskly:homepage")
 
 @login_required
 def password_change(request):
@@ -208,7 +205,7 @@ def password_reset_request(request):
                 else:
                     messages.error(request, "Problem sending reset password email, <b>SERVER PROBLEM</b>")
 
-            return redirect('Taskly:login')
+            return redirect('Taskly:homepage')
 
         for key, error in list(form.errors.items()):
             if key == 'captcha' and error[0] == 'This field is required.':
@@ -249,6 +246,10 @@ def passwordResetConfirm(request, uidb64, token):
     messages.error(request, 'Something went wrong, redirecting back to Homepage')
     return redirect("Taskly:homepage")
 
+
+@login_required(login_url='login')
+def userhome(request):
+    return render(request, 'Taskly/home.html')
 
 @login_required
 def logoutUser(request):

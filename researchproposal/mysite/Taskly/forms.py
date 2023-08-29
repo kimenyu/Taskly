@@ -3,7 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetP
 from django.contrib.auth import get_user_model
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Checkbox 
-from .models import User
+from .models import CustomUser
 
 
 class UserRegistrationForm(UserCreationForm):
@@ -35,12 +35,12 @@ class UserLoginForm(AuthenticationForm):
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
     
 class UserUpdateForm(forms.ModelForm):
-    model = User
+    model = CustomUser
     email = forms.EmailField()
 
     class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email', 'profile_picture', 'bio', 'social_media_links', 'description']
+        model = get_user_model()
+        fields = ['first_name', 'last_name', 'email']
 
 
 class SetPasswordForm(SetPasswordForm):
@@ -53,3 +53,22 @@ class PasswordResetForm(PasswordResetForm):
         super(PasswordResetForm, self).__init__(*args, **kwargs)
 
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit
+from .models import Task
+
+class TaskForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['title', 'description', 'due_date']
+        widgets = {
+            'due_date': forms.TextInput(attrs={'type': 'date'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super(TaskForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_class = 'form-horizontal'
+        self.helper.label_class = 'col-lg-2'
+        self.helper.field_class = 'col-lg-8'
+        self.helper.add_input(Submit('submit', 'Save'))

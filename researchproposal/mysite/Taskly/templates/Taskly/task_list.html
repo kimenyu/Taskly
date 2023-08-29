@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% include 'Taskly/messaging.html' %}
+
+{% block title %}Taskly App{% endblock %}
+{% block content %}
+{% include 'Taskly/messaging.html' %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="mb-4">Task List</h1>
+            {% if task_list %}
+            <ul class="list-group">
+                {% for task in task_list %}
+                <li class="list-group-item">
+                    <h5>{{ task.title }}</h5>
+                    <p>{{ task.description }}</p>
+                    <p>Due Date: {{ task.due_date }}</p>
+                    <small class="text-muted">Created on: {{ task.created_at }} </small>
+                </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>There are no tasks added.</p>
+        {% endif %}
+        
+        </div>
+        <div class="col-md-4">
+            <!-- Add any additional content or widgets here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
