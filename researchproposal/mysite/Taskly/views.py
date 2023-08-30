@@ -14,7 +14,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.core.mail import EmailMessage
 from django.db.models.query_utils import Q
 from django.views.generic import ListView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from .models import Task  # Import your Task model
@@ -22,26 +22,81 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render, redirect
 from .models import Task  # Import your Task model
 from .forms import TaskForm  # Import your TaskForm if you have one
+from django.views.generic.detail import DetailView
+
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
+from .models import Task
+from .forms import TaskForm
+from django.shortcuts import get_object_or_404, redirect
+from django.views.decorators.http import require_POST
+
+# Create your views here.
+def homeView(request):
+    return render(request, 'Taskly/home.html')
+
+@require_POST
+def mark_as_completed(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    task.completed = True
+    task.save()
+    return redirect('Taskly:homepage')
 
 class taskCreateView(LoginRequiredMixin, CreateView):
     model = Task
-    form_class = TaskForm  # Use your form class here
-    template_name = 'Taskly/task_form.html'  # Specify the template
-    success_url = reverse_lazy('Taskly:homepage')  # Replace 'homepage' with the URL name of your task list view
+    form_class = TaskForm
+    template_name = 'Taskly/task_form.html'
+    success_url = reverse_lazy('Taskly:homepage')
 
     def form_valid(self, form):
-        # Automatically set the user before saving the form
         form.instance.user = self.request.user
         return super().form_valid(form)
 
-class taskListView(ListView):
+class taskListView(LoginRequiredMixin, ListView):
     model = Task
 
+    def get_queryset(self):
+        # Filter tasks to show only the ones belonging to the logged-in user
+        return Task.objects.filter(user=self.request.user)
 
+class taskUpdateView(LoginRequiredMixin, UpdateView):
+    model = Task
+    form_class = TaskForm
+    template_name = 'Taskly/task_update_form.html'
+    success_url = reverse_lazy('Taskly:homepage')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    
+class taskDetailView(LoginRequiredMixin, DetailView):
+    model = Task
+
+    def get_queryset(self):
+        # Filter tasks to show only the ones belonging to the logged-in user
+        return Task.objects.filter(user=self.request.user)
+
+class taskDeleteView(LoginRequiredMixin, DeleteView):
+    model = Task
+    template_name = 'Taskly/task_confirm_delete.html'
+    success_url = reverse_lazy('Taskly:homepage')
+
+    def get_queryset(self):
+        # Filter tasks to show only the ones belonging to the logged-in user
+        return Task.objects.filter(user=self.request.user)
+    
+    def post(self, request, *args, **kwargs):
+        task = self.get_object()
+        task.mark_as_completed()  # Mark the task as completed before deleting it
+        return super().post(request, *args, **kwargs)
+
+@login_required(login_url='Taskly:login')
 def search_view(request):
     query = request.GET.get('q')
     if query:
-        results = Task.objects.filter(Q(title__icontains=query) | Q(text__icontains=query))
+        results = Task.objects.filter(Q(title__icontains=query) | Q(description__icontains=query))
     else:
         results = []
     return render(request, 'Taskly/search.html', {'results': results, 'query': query})

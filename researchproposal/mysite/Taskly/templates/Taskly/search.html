@@ -8,7 +8,7 @@
         <ul class="list-group">
             {% for result in results %}
                 <li class="list-group-item">
-                    <h2><a href="{% url 'Taskly:post_detail' result.id %}">{{ result.title }}</a></h2>
+                    <h2><a href="{% url 'Taskly:task-detail' slug=result.slug %}">{{ result.title }}</a></h2>
                     <p>{{ result.text|truncatewords:30 }}</p>
                     <p class="text-muted">{{ result.updated_at|date:"Y/m/d H:i" }}</p>
                 </li>

@@ -53,6 +53,7 @@ class PasswordResetForm(PasswordResetForm):
         super(PasswordResetForm, self).__init__(*args, **kwargs)
 
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
+    
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 from .models import Task

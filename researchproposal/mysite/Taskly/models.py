@@ -1,11 +1,15 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+from django.utils.text import slugify
+
+
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
     description = models.TextField("Description", max_length=600, default='', blank=True)
-
+    
     # Add related_name to groups and user_permissions fields
     groups = models.ManyToManyField(
         'auth.Group',
@@ -37,10 +41,23 @@ class Task(models.Model):
     
     # Use settings.AUTH_USER_MODEL as the foreign key target
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # User who owns the task
-
+    slug = models.SlugField(max_length=200, blank=True, null=True)  # Slug field for pretty URLs
+    
+    def save(self, *args, **kwargs):
+        # If the slug field is empty, populate it with the slugified title
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super(Task, self).save(*args, **kwargs)
+    
     def __str__(self):
         return self.title  # Display the title of the task as its string representation
+    
+    
+    def mark_as_completed(self):
+        self.completed = True
+        self.save()
 
-
-
-
+    def is_overdue(self):
+        if self.due_date and timezone.now() > self.due_date:
+            return True
+        return False

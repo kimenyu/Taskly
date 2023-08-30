@@ -13,6 +13,7 @@
 </head>
 <body>
     <nav class="navbar navbar-expand-xl navbar-dark bg-dark">
+        {% if user.is_authenticated %}
         <a href="{% url 'Taskly:homepage' %}" class="navbar-brand"><i class="fa fa-newspaper-o"></i><b>Taskly</b></a>
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
             <span class="navbar-toggler-icon"></span>
@@ -25,6 +26,20 @@
                 </div>  
             </form>
             <div class="navbar-nav">
+            {% else %}
+            <a href="{% url 'Taskly:home' %}" class="navbar-brand"><i class="fa fa-newspaper-o"></i><b>Taskly</b></a>
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbarCollapse" class="collapse navbar-collapse justify-content-between">
+            <form class="navbar-form form-inline" method="GET" action="{% url 'Taskly:search' %}">
+                <div class="input-group search-box">
+                    <input type="text" id="search" name="q" class="form-control form-control-lg py-2 px-4 mr-9" placeholder="Search here..."> <button type="submit" class="btn btn-primary">Search</button>
+                    <span class="input-group-addon"><i class="material-icons">&#xE8B6;</i></span>
+                </div>  
+            </form>
+            <div class="navbar-nav">
+            {% endif %}
                 {% if user.is_authenticated %}
                 <div class="d-flex align-items-center">
                     <a href="{% url 'Taskly:task-create' %}" class="nav-item nav-link mx-2"><i class="fa fa-pencil"></i><span>Create Task</span></a>
