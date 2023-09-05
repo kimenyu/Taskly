@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect
 from .models import User, Task
 from django.contrib.auth import get_user_model, login, authenticate, logout
-from .forms import UserRegistrationForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm, TaskForm
+from .forms import UserRegistrationForm, PositionForm, UserLoginForm, UserUpdateForm, SetPasswordForm, PasswordResetForm, TaskForm
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
+from django.db import transaction
 from django.contrib.auth.decorators import login_required
 from .decorators import user_not_authenticated
 from .tokens import account_activation_token
@@ -23,7 +24,6 @@ from django.shortcuts import render, redirect
 from .models import Task  # Import your Task model
 from .forms import TaskForm  # Import your TaskForm if you have one
 from django.views.generic.detail import DetailView
-
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
@@ -31,6 +31,7 @@ from .models import Task
 from .forms import TaskForm
 from django.shortcuts import get_object_or_404, redirect
 from django.views.decorators.http import require_POST
+
 
 # Create your views here.
 def homeView(request):
@@ -43,6 +44,8 @@ def mark_as_completed(request, pk):
     task.save()
     return redirect('Taskly:homepage')
 
+from django.contrib import messages
+
 class taskCreateView(LoginRequiredMixin, CreateView):
     model = Task
     form_class = TaskForm
@@ -50,8 +53,20 @@ class taskCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('Taskly:homepage')
 
     def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
+        # Check if a task with the same title already exists for the current user
+        existing_task = Task.objects.filter(user=self.request.user, title=form.cleaned_data['title']).first()
+        
+        if existing_task:
+            messages.error(self.request, 'Task with this title already exists.')
+            return self.form_invalid(form)  # Display an error message
+        else:
+            form.instance.user = self.request.user
+            return super().form_valid(form)  # Proceed with task creation
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['error_message'] = messages.get_messages(self.request)
+        return context
 
 class taskListView(LoginRequiredMixin, ListView):
     model = Task

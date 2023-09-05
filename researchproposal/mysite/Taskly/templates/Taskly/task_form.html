@@ -1,9 +1,18 @@
 {% extends 'base.html' %}
-
 {% load crispy_forms_tags %}
-
 {% block content %}
   <h2>Create Task</h2>
+  
+  {% if error_message %}
+    <div class="alert alert-danger">
+      <ul>
+        {% for message in error_message %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
   <form method="post">
     {% csrf_token %}
     {{ form|crispy }}
@@ -13,3 +22,4 @@
     <a href="{% url 'Taskly:homepage' %}" class="btn btn-secondary">Cancel</a>
   </div>
 {% endblock %}
+

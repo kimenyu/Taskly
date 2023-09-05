@@ -73,3 +73,6 @@ class TaskForm(forms.ModelForm):
         self.helper.label_class = 'col-lg-2'
         self.helper.field_class = 'col-lg-8'
         self.helper.add_input(Submit('submit', 'Save'))
+
+class PositionForm(forms.Form):
+    position = forms.CharField()

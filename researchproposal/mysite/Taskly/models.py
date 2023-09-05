@@ -43,6 +43,9 @@ class Task(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # User who owns the task
     slug = models.SlugField(max_length=200, blank=True, null=True)  # Slug field for pretty URLs
     
+    class Meta:
+        order_with_respect_to = 'user'
+        
     def save(self, *args, **kwargs):
         # If the slug field is empty, populate it with the slugified title
         if not self.slug:

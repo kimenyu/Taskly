@@ -7,8 +7,8 @@ from .views import taskListView, taskCreateView, taskUpdateView, taskDetailView
 app_name ='Taskly'
 
 urlpatterns = [
-    path('', views.taskListView.as_view(), name='homepage'),
-    path('home/', views.homeView, name='home'),  # Added trailing slash for consistency
+    path('', views.homeView, name='home'),
+    path('homepage', views.taskListView.as_view(), name='homepage'),
     path('register/', views.register, name='register'),  # Added trailing slash for consistency
     path('login/', views.login_view, name='login'),
     path('logout/', views.logoutUser, name='logout'),
@@ -23,6 +23,7 @@ urlpatterns = [
     path('task/<slug:slug>/', taskDetailView.as_view(), name='task-detail'),
     path('task/<slug:slug>/delete/', views.taskDeleteView.as_view(), name='task-delete'),
     path('mark-as-completed/<int:pk>/', views.mark_as_completed, name='mark-as-completed'),
+    
     ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

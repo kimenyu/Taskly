@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Taskly App
+{% endblock %}
+
+{% block content %}
+    {% include 'Taskly/messaging.html' %}
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-8">
+                <h1 class="mb-4">Task List</h1>
+                {% if task_list %}
+                    <ul class="list-group">
+                        {% for task in task_list %}
+                            <li class="list-group-item">
+                                <h5>{{ task.title }}</h5>
+                                <p><b>Due Date:</b> {{ task.due_date }}</p>
+                                <p>{{ task.description }}</p>
+                                <small class="text-muted">Created on: {{ task.created_at }}</small>
+
+                                {% if task.is_overdue %}
+                                    <span class="badge bg-danger clickable-badge" data-task-id="{{ task.id }}">Overdue</span>
+                                {% endif %}
+
+                                {% if not task.completed and not task.is_overdue %}
+                                    <form method="post" action="{% url 'Taskly:mark-as-completed' task.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-success btn-sm">Mark as Completed</button>
+                                    </form>
+                                {% elif not task.completed %}
+                                    <span class="badge bg-warning clickable-badge" data-task-id="{{ task.id }}">Cannot Complete (Overdue)</span>
+                                {% else %}
+                                    <span class="badge bg-success clickable-badge">Completed</span>
+                                {% endif %}
+
+                                <a href="{% url 'Taskly:task-update' slug=task.slug %}" class="btn btn-primary btn-sm">Update</a>
+                                <a href="{% url 'Taskly:task-detail' slug=task.slug %}" class="btn btn-danger btn-sm">Detail</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>There are no tasks added.</p>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <!-- Add any additional content or widgets here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Use event delegation to handle clicks on badges
+            $('.list-group').on('click', '.clickable-badge', function() {
+                var $badge = $(this);
+                // Add your badge click handling logic here
+            });
+        });
+    </script>
+</style>
+{% endblock %}
