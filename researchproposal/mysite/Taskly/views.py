@@ -160,7 +160,7 @@ def register(request):
             user.is_active=False
             user.save()
             activateEmail(request, user, form.cleaned_data.get('email'))
-            return redirect('Taskly:homepage')
+            return redirect('Taskly:login')
         else:
             for error in list(form.errors.values()):
                 messages.error(request, error)
