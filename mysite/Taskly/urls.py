@@ -7,8 +7,8 @@ from .views import taskListView, taskCreateView, taskUpdateView, taskDetailView
 app_name ='Taskly'
 
 urlpatterns = [
-    path('homepage', views.homeView, name='home'),
-    path('', views.taskListView.as_view(), name='homepage'),
+    path('', views.homeView, name='home'),
+    path('home', views.taskListView.as_view(), name='homepage'),
     path('register/', views.register, name='register'),  # Added trailing slash for consistency
     path('login/', views.login_view, name='login'),
     path('logout/', views.logoutUser, name='logout'),
