@@ -28,24 +28,18 @@ To run Taskly locally on your machine, follow these steps:
    git clone https://github.com/kimenyu/Taskly
    Navigate to the project directory:
 
-bash
-Copy code
+
 cd Taskly
 Create a virtual environment (recommended) and activate it:
 
-bash
-Copy code
 python -m venv venv
 source venv/bin/activate
 Install the project dependencies:
 
-bash
-Copy code
 pip install -r requirements.txt
+
 Create a PostgreSQL database and configure the database settings in settings.py:
 
-python
-Copy code
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -58,19 +52,16 @@ DATABASES = {
 }
 Apply database migrations:
 
-bash
-Copy code
+
 python manage.py makemigrations
 python manage.py migrate
 Create a superuser for the admin panel:
 
-bash
-Copy code
+
 python manage.py createsuperuser
 Start the development server:
 
-bash
-Copy code
+
 python manage.py runserver
 Open your web browser and go to http://localhost:8000/ to access Taskly.
 
@@ -82,6 +73,7 @@ Create, update, and delete tasks from the main dashboard.
 Mark tasks as completed by clicking on them.
 Use the search functionality to find specific tasks.
 Change your password or reset it if necessary.
+
 License
 This project is licensed under the MIT License - see the LICENSE file for details.
 
